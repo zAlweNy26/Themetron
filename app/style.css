@@ -1,0 +1,511 @@
+:root {
+    --radius: 10px;
+    --main: rgb(0, 190, 150);
+    --fg: rgb(255, 255, 255);
+    --bg: rgb(40, 40, 40);
+    --bg-hover: rgb(70, 70, 70);
+    --bg-press: rgb(100, 100, 100);
+}
+
+::selection {
+    color: var(--bg);
+    background-color: var(--main);
+}
+
+html, body {
+    height: 100vh;
+    width: 100vw;
+    font-family: "Nunito";
+    overflow: hidden;
+}
+
+#content, .icon {
+    -webkit-app-region: no-drag;
+}
+
+#root {
+    height: 100%;
+    width: 100%;
+    color: var(--fg);
+    border-radius: var(--radius);
+    background-color: var(--bg);
+}
+
+#content {
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+#titlebar {
+    -webkit-app-region: drag;
+    width: 100%;
+    height: 34px;
+    border-top-left-radius: var(--radius);
+    border-top-right-radius: var(--radius);
+    background: var(--main);
+    display: flex;
+    padding: 5px;
+    justify-content: space-between;
+}
+
+.title {
+    -webkit-user-select: none;
+    color: var(--bg);
+    line-height: 24px;
+    font-size: 1.25em;
+    font-weight: 800;
+}
+
+.icon, .gh-wrapper div, .pp-wrapper div {
+    width: 24px;
+    height: 24px;
+    transition: all .35s ease;
+    cursor: pointer;
+}
+
+.title-icons {
+    display: flex;
+    gap: 5px;
+}
+
+.gh-wrapper {
+    border-radius: 50%;
+}
+
+.gh-wrapper:hover {
+    box-shadow: 0 0 1px black, 0 0 3px black, 0 0 5px black, 0 0 10px black;
+}
+
+.gh-wrapper div, .pp-wrapper div {
+    background: url("icons/github.svg") no-repeat top center;
+    background-size: contain;
+    display: inline-block;
+}
+
+.pp-wrapper div {
+    background: url("icons/paypal.svg") no-repeat top center;
+}
+
+.close-wrapper {
+    background-color: red;
+    border-radius: 5px;
+    padding: 3px;
+}
+
+.close-wrapper:hover {
+    box-shadow: 0 0 1px red, 0 0 3px red, 0 0 5px red, 0 0 10px red;
+}
+
+.close, .min {
+    position: fixed;
+    width: 18px;
+    height: 18px;
+    transition: all .35s ease;
+}
+
+.close-wrapper:hover .close {
+    transform: rotate(180deg);
+}
+
+.close-wrapper:hover .close::before, .close-wrapper:hover .close::after,
+.min-wrapper:hover .min::before, .min-wrapper:hover .min::after {
+    background-color: var(--fg);
+}
+
+.close::before, .close::after {
+    background-color: var(--bg);
+    transition: all .35s ease;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 5px;
+    border-radius: var(--radius);
+    height: 18px;
+    transform: rotate(45deg) translate(-50%, -50%);
+    transform-origin: top left;
+    content: '';
+}
+
+.close::after {
+    transform: rotate(-45deg) translate(-50%, -50%);
+}
+
+.min-wrapper {
+    background-color: darkorange;
+    border-radius: 5px;
+    padding: 3px;
+}
+
+.min-wrapper:hover {
+    box-shadow: 0 0 1px darkorange, 0 0 3px darkorange, 0 0 5px darkorange, 0 0 10px darkorange;
+}
+
+.min::before {
+    transition: all .35s ease;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 5px;
+    border-radius: 10px;
+    height: 18px;
+    background-color: var(--bg);
+    transform: rotate(90deg) translate(0%, -50%);
+    transform-origin: top left;
+    content: '';
+}
+
+.checkmark-wrapper {
+    background-color: var(--main);
+    border-radius: var(--radius);
+    width: 30px;
+    height: 30px;
+    padding: 3px;
+    cursor: pointer;
+    transition: all .35s ease;
+}
+
+.checkmark-wrapper:hover {
+    box-shadow: 0 0 1px var(--main), 0 0 3px var(--main), 0 0 5px var(--main), 0 0 10px var(--main);
+}
+
+.checkmark-wrapper:hover .checkmark-stem,
+.checkmark-wrapper:hover .checkmark-kick {
+    background-color: var(--fg);
+}
+
+.checkmark {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    transform: rotate(45deg);
+    transform-origin: center center;
+}
+
+.checkmark-stem {
+    transition: all .35s ease;
+    position: absolute;
+    width: 3px;
+    height: 16px;
+    background-color: var(--bg);
+    left: 11px;
+    top: 6px;
+}
+
+.checkmark-kick {
+    transition: all .35s ease;
+    position: absolute;
+    width: 8px;
+    height: 3px;
+    background-color: var(--bg);
+    left: 6px;
+    top: 19px;
+}
+
+.dropmenu {
+    background: var(--fg);
+    border-radius: var(--radius);
+    position: relative;
+    width: 220px;
+    cursor: pointer;
+    transition: all .35s ease;
+}
+
+.menu-list {
+    -webkit-user-select: none;
+    width: 220px;
+    border-radius: var(--radius);
+    background: var(--fg);
+    padding: 5px;
+    height: 0;
+    top: 15px;
+    opacity: 0;
+    z-index: 1;
+    max-height: 140px;
+    position: absolute;
+    overflow-y: auto;
+    transition: all .35s ease;
+}
+
+.menu-selected {
+    cursor: pointer;
+    height: 30px;
+    outline: none;
+    border: none;
+    width: 220px;
+    padding: 0 30px;
+    line-height: 30px;
+    color: var(--bg);
+    border-radius: var(--radius);
+    font-size: 1em;
+    font-family: "Nunito";
+    font-weight: 600;
+    background: none;
+}
+
+#themes {
+    width: 195px;
+}
+
+#themes .menu-list {
+    width: 195px;
+}
+
+#themes .menu-selected {
+    width: 195px;
+    padding: 0 30px 0 10px;
+}
+
+.dropmenu.active .menu-selected {
+    border-radius: var(--radius) var(--radius) 0 0;
+}
+
+.menu-list::-webkit-scrollbar {
+    width: 15px;
+}
+
+.menu-list::-webkit-scrollbar-thumb {
+    background: var(--main);
+    border-radius: var(--radius);
+    border: 5px solid rgba(0, 0, 0, 0);
+    -webkit-background-clip: padding-box;
+    background-clip: padding-box;
+}
+
+.dropmenu.active {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.dropmenu.active .menu-list {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    opacity: 1;
+    height: auto;
+    top: 30px;
+}
+
+.menu-list li {
+    transition: all .25s ease;
+    list-style: none;
+    padding: 5px 10px;
+    display: none;
+    color: var(--bg);
+    font-weight: 600;
+    border-radius: var(--radius);
+}
+
+.menu-list li span {
+    flex-grow: 2;
+    margin-left: 15px;
+}
+
+.dropmenu.active .menu-list li {
+    display: flex;
+    justify-content: space-between;
+}
+
+.menu-list li:hover {
+    background: var(--main);
+}
+
+.menu-arrow {
+    position: absolute;
+    right: 0px;
+    top: 0px;
+    height: 30px;
+    width: 30px;
+    text-align: center;
+    line-height: 25px;
+}
+
+.menu-add {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    height: 30px;
+    width: 30px;
+    text-align: center;
+    line-height: 25px;
+}
+
+.menu-add:hover i::before, .menu-add:hover i::after {
+    background-color: var(--main);
+}
+
+.menu-add i:before {
+    position: relative;
+    width: 30px;
+    height: 30px;
+}
+
+.menu-add i::before, .menu-add i::after {
+    background-color: var(--bg);
+    transition: all .35s ease;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 2px;
+    height: 12px;
+    transform: translate(-50%, -50%);
+    transform-origin: top left;
+    content: '';
+}
+
+.menu-add i::after {
+    transform: rotate(-90deg) translate(-50%, -50%);
+}
+
+.menu-arrow i {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-top: 2px solid var(--bg);
+    border-right: 2px solid var(--bg);
+    transition: all .35s ease;
+    transform: rotate(135deg);
+}
+
+.dropmenu.active .menu-arrow i {
+    transform: rotate(-45deg) translate(-35%, 35%);
+}
+
+.item-remove {
+    position: relative;
+    transition: all .35s ease;
+}
+
+.item-remove:hover::before, .item-remove:hover::after {
+    background-color: red;
+    box-shadow: 0 0 1px red, 0 0 3px red, 0 0 5px red, 0 0 10px red;
+}
+
+.item-remove::before, .item-remove::after {
+    background-color: var(--bg);
+    transition: all .25s ease;
+    position: absolute;
+    top: 50%;
+    width: 2px;
+    height: 10px;
+    transform: rotate(45deg) translate(-50%, -50%);
+    transform-origin: top left;
+    content: '';
+}
+
+.item-remove::after {
+    transform: rotate(-45deg) translate(-50%, -50%);
+}
+
+#top, fieldset .group #theme-info {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+#bottom {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+#action {
+    color: var(--main);
+    font-weight: 800;
+}
+
+#save {
+    outline: none;
+    border: none;
+    font-size: 1em;
+    font-family: "Nunito";
+    font-weight: 800;
+    height: 25px;
+    text-transform: uppercase;
+    padding: 0 10px;
+    background-color: var(--main);
+    border-radius: var(--radius);
+    transition: all .25s ease;
+    cursor: pointer;
+}
+
+#save:hover {
+    color: white;
+    box-shadow: 0 0 1px var(--main), 0 0 3px var(--main), 0 0 5px var(--main), 0 0 10px var(--main);
+}
+
+#theme-info p {
+    font-size: 1em;
+    font-weight: 600;
+    color: var(--main);
+}
+
+fieldset {
+    border: 2px solid var(--main);
+    padding: 10px;    
+    border-radius: var(--radius);
+}
+
+legend {
+    padding: 0 10px;    
+}
+
+.text-field {
+    height: 25px;
+    outline: none;
+    border: none;
+    width: 200px;
+    padding: 0 10px;
+    line-height: 25px;
+    color: var(--bg);
+    border-radius: var(--radius);
+    font-size: 1em;
+    font-family: "Nunito";
+    font-weight: 600;
+}
+
+input[data-coloris] {
+    cursor: pointer;
+    height: 25px;
+    outline: none;
+    border: none;
+    width: 160px;
+    padding: 0 10px;
+    line-height: 25px;
+    color: var(--bg);
+    border-radius: var(--radius);
+    font-size: 1em;
+    text-transform: uppercase;
+    font-family: "Nunito";
+    font-weight: 600;
+}
+
+.clr-field {
+    z-index: 0;
+}
+
+.clr-field button {
+    border-top-right-radius: var(--radius);
+    border-bottom-right-radius: var(--radius);
+}
+
+fieldset .group, fieldset .group #colors .sub {
+    flex-direction: column;
+}
+
+fieldset .group, fieldset .group #colors, fieldset .group #colors .sub {
+    display: flex;
+    gap: 10px;
+}
+
+fieldset .group #colors > div p {
+    font-size: 0.65em;
+    font-weight: 800;
+    color: var(--main);
+    text-transform: uppercase;
+}

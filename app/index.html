@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Security-Policy" content="img-src * data:; default-src * gap:; script-src * 'unsafe-inline' 'unsafe-eval'; style-src * 'unsafe-inline';">
+    <meta http-equiv="X-Content-Security-Policy" content="img-src * data:; default-src * gap:; script-src * 'unsafe-inline' 'unsafe-eval'; style-src * 'unsafe-inline';">
+    <title>Themetron</title>
+    <link rel="stylesheet" href="reset.css">
+    <link rel="stylesheet" href="coloris.css">
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <div id="root">
+      <div id="titlebar">
+        <div class="title-icons">
+          <div class="icon gh-wrapper"><div></div></div>
+          <div class="icon pp-wrapper"><div></div></div>
+        </div>
+        <div class="title">Themetron v1.0.0</div>
+        <div class="title-icons">
+          <div class="icon min-wrapper"><div class="min"></div></div>
+          <div class="icon close-wrapper"><div class="close"></div></div>
+        </div>
+      </div>
+      <div id="content">
+        <div id="top">
+          <p>Set</p>
+          <div id="themes" class="dropmenu">
+            <input class="menu-selected" type="text" value="Select a theme" disabled>
+            <div class="menu-arrow"><i></i></div>
+            <div class="menu-list"></div>
+          </div>
+          <p>to</p>
+          <div id="apps" class="dropmenu">
+            <div class="menu-add"><i></i></div>
+            <input class="menu-selected" type="text" value="Select an app" disabled>
+            <div class="menu-arrow"><i></i></div>
+            <div class="menu-list"></div>
+          </div>
+          <div id="apply" class="checkmark-wrapper">
+            <span class="checkmark">
+              <div class="checkmark-stem"></div>
+              <div class="checkmark-kick"></div>
+            </span>
+          </div>
+        </div>
+        <div id="bottom">
+          <p id="action">Welcome to Themetron !</p>
+          <fieldset>
+            <legend>Add your own theme here :</legend>
+            <div class="group">
+              <div id="colors">
+                <div class="sub">
+                  <div>
+                    <p>Primary color :</p>
+                    <input type="text" data-coloris/>
+                  </div>
+                  <div>
+                    <p>Secondary color :</p>
+                    <input type="text" data-coloris/>
+                  </div>
+                  <div>
+                    <p>Tertiary color :</p>
+                    <input type="text" data-coloris/>
+                  </div>
+                </div>
+                <div class="sub">
+                  <div>
+                    <p>Dark color :</p>
+                    <input type="text" data-coloris/>
+                  </div>
+                  <div>
+                    <p>Light color :</p>
+                    <input type="text" data-coloris/>
+                  </div>
+                  <div>
+                    <p>Info color :</p>
+                    <input type="text" data-coloris/>
+                  </div>
+                </div>
+                <div class="sub">
+                  <div>
+                    <p>Positive color :</p>
+                    <input type="text" data-coloris/>
+                  </div>
+                  <div>
+                    <p>Danger color :</p>
+                    <input type="text" data-coloris/>
+                  </div>
+                  <div>
+                    <p>Warning color :</p>
+                    <input type="text" data-coloris/>
+                  </div>
+                </div>
+              </div>
+              <div id="theme-info">
+                <p>Theme name :</p>
+                <input type="text" id="theme-name" class="text-field"/>
+                <input type="button" id="save" value="Save"/>
+              </div>
+            </div>
+          </fieldset>            
+        </div>
+      </div>
+    </div>
+    <script>
+      if (typeof module === 'object') {
+        window.module = module; 
+        module = undefined;
+      }
+    </script>
+    <script type="text/javascript" src="jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" src="coloris.js"></script>
+    <script type="text/javascript" src="renderer.js"></script>
+    <script>if (window.module) module = window.module;</script>
+  </body>
+</html>
