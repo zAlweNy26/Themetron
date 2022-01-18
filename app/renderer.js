@@ -21,11 +21,11 @@ $(document).ready(function() {
             </li>`
         )
     })
-    themes.forEach(theme => {
+    Object.keys(themes).forEach(theme => {
         $("#themes .menu-list").append(`
             <li>
                 <i class="item-remove"></i>
-                <span>${theme.name}</span>
+                <span>${theme}</span>
             </li>`
         )
     })
@@ -42,7 +42,7 @@ $(document).ready(function() {
 $(".menu-list").on('click', 'li', function(e) {
     let menuID = $(this).parent().parent().attr("id")
     if ($(e.target).is("i")) return
-    $(`#${menuID} .menu-selected`).attr('value', $(this).children("span").text())
+    $(`#${menuID} .menu-selected`).val($(this).children("span").text())
     let single = menuID.charAt(0).toUpperCase() + menuID.slice(1, -1)
     setAction(`${single} selected !`, "lime")
 })
@@ -51,8 +51,9 @@ $(".menu-list").on('click', 'li .item-remove', async function() {
     let parent = $(this).parent()
     let menuID = $(parent).parent().parent().attr("id")
     let sel = menuID == "apps" ? "Select an app" : "Select a theme"
-    if (parent.val() == $(`#${menuID} .menu-selected`).val()) $(`#${menuID} .menu-selected`).val(sel)
-    //await ipcRenderer.invoke("delStoreValue", `${menuID}[${}]`)
+    let input = $(`#${menuID} .menu-selected`)
+    await ipcRenderer.invoke("delStoreValue", `${menuID}.${input.val()}`)
+    if (parent.children("span").text() == input.val()) input.val(sel)
     setAction(`${menuID == "apps" ? "App" : "Theme"} removed from the list !`, "red")
     parent.remove()
 })
@@ -86,12 +87,19 @@ $(".menu-add").on('click', function() {
         filters: [{ name: 'Electron executable', extensions: ['exe'] }]
     })
     if (selectedAsar != undefined) {
-        selectedAsar.forEach(exePath => {
+        selectedAsar.forEach(async exePath => {
             let baseName = path.basename(exePath).split(".")[0]
             let alreadyExist = $('#apps .menu-list').find(`li span:contains("${baseName}")`)
             if (alreadyExist.length == 0) {
+                await ipcRenderer.invoke("setStoreValue", `apps.${baseName}`, {
+                    "version": "",
+                    "themeApplied": "",
+                    "mainPath": path.dirname(exePath),
+                    "exePath": exePath,
+                    "asarPath": ""
+                })
                 $("#apps .menu-list").append(`
-                    <li data="${path.dirname(exePath)}">
+                    <li>
                         <i class="item-remove"></i>
                         <span>${baseName}</span>
                     </li>`
@@ -130,7 +138,7 @@ $("#apply").on('click', function() {
     if (appsJson[app.appName].themeApplied == theme.themeName) 
         return setAction("This theme has already been set for this app !", "red")
     
-    // applica il tema all'app e scriverlo in apps.json
+    // applica il tema all'app e scriverlo nel json
 })
 
 $("#save").on('click', function() { 
@@ -139,12 +147,19 @@ $("#save").on('click', function() {
         if ($("#theme-name").val() == '') 
             return setAction("The theme name is missing !", "red")
         else if (Object.keys(themes).includes($("#theme-name").val())) {
-            //override = dialog.showMessageBox(null, options)
-            // chiedere se si vuole sovrascrivere il tema che è già presente con questo nome
+            override = remote.dialog.showMessageBoxSync(remote.getCurrentWindow(), {
+                title: "Override theme",
+                message: `Do you want to override the existing ${$("#theme-name").val()} ?`,
+                detail: "If you click yes, the app will replace the current theme color values with the new one you chose.",
+                type: "question",
+                buttons: ["Yes", "No"],
+                defaultId: 1,
+                cancelId: 1,
+            }) == 0
         }
-
-        // salvare tema nel themes.json
-
+        if (!override) return
+        $("#colors").find("input").filter(function() { return console.log($(this).val()); })
+        // salvare tema nel json
         setAction("Theme saved successfully !", "lime")
     } else setAction("The theme could not be saved because some colors are missing !", "red")
 })

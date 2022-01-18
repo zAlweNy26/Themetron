@@ -1,5 +1,4 @@
 const { app, BrowserWindow, ipcMain } = require('electron')
-const fs = require("fs-extra")
 const Store = require('electron-store')
 //const { autoUpdater } = require('electron-updater')
 const path = require('path')
@@ -7,9 +6,6 @@ const path = require('path')
 require('@electron/remote/main').initialize()
 
 const store = new Store({clearInvalidConfig: true, watch: true})
-
-//const DataStore = require('./storage.js')
-//const appsData = new DataStore({ name: "ThemetronInfos" })
 
 global.apps = []
 global.themes = []
@@ -59,9 +55,8 @@ app.whenReady().then(async () => {
         global.apps = store.get("apps")
     }
     if (!store.has("themes")) {
-        global.themes = [
-            {
-                "name": "Dark-Cyan",
+        global.themes = {
+            "Dark-Cyan": {
                 "dark": "#252525",
                 "light": "#FFFFFF",
                 "primary": "#00CCAA",
@@ -71,7 +66,7 @@ app.whenReady().then(async () => {
                 "positive": "#00FF15",
                 "warning": "#FFD500"
             }
-        ]
+        }
         store.set("themes", global.themes)
     } else global.themes = store.get("themes")
     createWindow()
@@ -90,9 +85,9 @@ ipcMain.handle('getStoreValue', (event, key) => {
 })
 
 ipcMain.handle('setStoreValue', (event, key, value) => {
-	return store.set(key, value)
+	store.set(key, value)
 })
 
 ipcMain.handle('delStoreValue', (event, key) => {
-	return store.delete(key)
+    store.delete(key)
 })
