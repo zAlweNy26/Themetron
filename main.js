@@ -1,6 +1,6 @@
 const { app, BrowserWindow, ipcMain } = require('electron')
 const Store = require('electron-store')
-//const { autoUpdater } = require('electron-updater')
+//const { autoUpdater } = require('electron-updater') // TODO : set it up before production
 const path = require('path')
 
 require('@electron/remote/main').initialize()
@@ -10,7 +10,7 @@ const store = new Store({clearInvalidConfig: true, watch: true})
 global.apps = []
 global.themes = []
 
-try { require('electron-reloader')(module) } catch (err) { console.error(err) }
+try { require('electron-reloader')(module) } catch (err) { console.error(err) } // TODO : remove it in production
 
 const createWindow = () => {
     const win = new BrowserWindow({
@@ -33,15 +33,6 @@ const createWindow = () => {
         mainWindow = null
     })
 }
-function uniqueObjectsInArray(arr1, arr2) {
-    let c = arr1.concat(arr2)
-    for(let i = 0; i < c.length; ++i) {
-        for(let j = i + 1; j < c.length; ++j) {
-            if (JSON.stringify(c[i]) === JSON.stringify(c[j])) c.splice(j--, 1)
-        }
-    }
-    return c
-}
 
 app.whenReady().then(async () => {
     let apps = await require(`./platforms/${process.platform}.js`).detectApps()
@@ -49,7 +40,7 @@ app.whenReady().then(async () => {
         global.apps = apps
         store.set("apps", apps)
     } else {
-        store.set("apps", uniqueObjectsInArray(store.get("apps"), apps))
+        store.set("apps", Object.assign({}, store.get("apps"), apps))
         global.apps = store.get("apps")
     }
     if (!store.has("themes")) {
@@ -94,6 +85,8 @@ ipcMain.handle('delStoreValue', (event, key) => {
 ipcMain.handle('setAppTheme', (event, app, theme) => {
     let appValues = store.get(`apps.${app}`)
     let themeValues = store.get(`themes.${theme}`)
+    console.log(appValues)
+    console.log(themeValues)
     // TODO : applica il tema all'app e POI scriverlo nel json
     // return true se è andato tutto ok, altrimenti false
     // store.set(`apps.${app}.themeApplied`, theme)

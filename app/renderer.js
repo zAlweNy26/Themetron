@@ -13,7 +13,7 @@ function setAction(text, color) {
 
 $(document).ready(function() {
     Object.keys(apps).forEach(app => {
-        $("#themes .menu-list").append(`
+        $("#apps .menu-list").append(`
             <li>
                 <i class="item-remove"></i>
                 <span>${app}</span>
