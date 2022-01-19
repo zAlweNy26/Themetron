@@ -49,24 +49,21 @@ function isElectronApp(installDir) {
     )
 }
 
-async function getAppInfoByExePath(exePath, iconPath, values) {
+async function getAppInfoByExePath(exePath, iconPath, values) { // TODO : rimuovere iconPath da ovunque
     const displayName = values.find(v => v && v.type === RegistryValueType.REG_SZ && v.name === 'DisplayName')
     const displayVersion = values.find(v => v && v.type === RegistryValueType.REG_SZ && v.name === 'DisplayVersion')
-    let icon = ''
-    if (iconPath) {
-        const iconBuffer = await fs.promises.readFile(iconPath)
-        icon = 'data:image/x-icon;base64,' + iconBuffer.toString('base64')
-    }
     let appName = displayName ? displayName.data : path.basename(exePath, '.exe')
+    let appVer = displayVersion ? displayVersion.data : ""
     appName = appName.replace(/\d+(\.\d+){0,5}/, "")
     appName = appName.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
     return {
-        name: appName.trimEnd(),
-        version: displayVersion ? displayVersion.data : "",
-        themeApplied: "",
-        mainPath: path.dirname(exePath),
-        exePath,
-        asarPath: ""
+        [appName.trimEnd()]: {
+            version: appVer,
+            themeApplied: "",
+            mainPath: path.dirname(exePath),
+            exePath,
+            asarPath: ""
+        }
     }
 }
 
@@ -84,7 +81,7 @@ async function findExeFile(dir) {
 const detectApps = async () => {
     let apps = await Promise.all(items.map(iv => getAppInfoFromRegeditItemValues(iv)))
     apps = apps.filter(app => typeof app !== 'undefined').sort((a, b) => (a.name < b.name ? -1 : 1))
-    return apps
+    return Object.assign({}, ...apps)
 }
 
 exports.detectApps = detectApps

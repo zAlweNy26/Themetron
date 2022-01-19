@@ -1,6 +1,5 @@
 const { ipcRenderer } = require('electron')
 const remote = require("@electron/remote")
-const fs = require("fs")
 const path = require("path")
 const klawSync = remote.require("klaw-sync")
 
@@ -13,11 +12,11 @@ function setAction(text, color) {
 }
 
 $(document).ready(function() {
-    apps.forEach(app => {
-        $("#apps .menu-list").append(`
+    Object.keys(apps).forEach(app => {
+        $("#themes .menu-list").append(`
             <li>
                 <i class="item-remove"></i>
-                <span>${app.name}</span>
+                <span>${app}</span>
             </li>`
         )
     })
@@ -79,6 +78,20 @@ $(".min-wrapper").on('click', function() {
     remote.getCurrentWindow().minimize()
 })
 
+$(".dropmenu").on('click', function(e) {
+    let menuID = $(this).attr("id")
+    if ($(`#${menuID} .menu-list`).children().length > 0) {
+        e.stopPropagation()
+        $(this).toggleClass("active")
+    } else if (menuID == "apps") {
+        $(`#apps .menu-selected`).attr('value', "No apps found")
+        $(`#apps .menu-selected`).attr('data', "")
+    } else if (menuID == "themes") {
+        $(`#themes .menu-selected`).attr('value', "No themes found")
+        $(`#themes .menu-selected`).attr('data', "")
+    }
+})
+
 $(".menu-add").on('click', function() {
     let selectedAsar = remote.dialog.showOpenDialogSync(remote.getCurrentWindow(), {
         title: "Select the .exe file of the electron-based app",
@@ -110,56 +123,47 @@ $(".menu-add").on('click', function() {
     }
 })
 
-$(".dropmenu").on('click', function(e) {
-    let menuID = $(this).attr("id")
-    if ($(`#${menuID} .menu-list`).children().length > 0) {
-        e.stopPropagation()
-        $(this).toggleClass("active")
-    } else if (menuID == "apps") {
-        $(`#apps .menu-selected`).attr('value', "No apps found")
-        $(`#apps .menu-selected`).attr('data', "")
-    } else if (menuID == "themes") {
-        $(`#themes .menu-selected`).attr('value', "No themes found")
-        $(`#themes .menu-selected`).attr('data', "")
-    }
+$("#apply").on('click', async function() {
+    let themeName = $("#themes .menu-selected").val()
+    let appName = $("#apps .menu-selected").val()
+    if (themeName == '' && appName == '') return setAction("Neither the app nor the theme have been selected !", "red")
+    else if (themeName == '') return setAction("No theme to set has been selected !", "red")
+    else if (appName == '') return setAction("No app has been selected !", "red")
+    else if (apps[appName] == undefined) return setAction("No apps found with this name !", "red")
+    else if (apps[appName].themeApplied == themeName) return setAction("This theme has already been set for this app !", "red")
+    let res = await ipcRenderer.invoke("setAppTheme", appName, themeName)
+    if (res) setAction("Theme injected successfully !", "lime")
+    else setAction("There were problems assigning the theme to the app !", "red")
 })
 
-$("#apply").on('click', function() {
-    let theme = {
-        themeName: $("#themes .menu-selected").val(),
-        themeIndex: $("#themes .menu-selected").attr("data")
-    }
-    let app = {
-        appName: $("#apps .menu-selected").val(),
-        mainPath: $("#apps .menu-selected").attr("data")
-    }
-    let appsJson = JSON.parse(fs.readFileSync(path.join(__dirname.replace("app", ""), "apps.json"), 'utf8'))
-    if (appsJson[app.appName] == undefined) return setAction("No apps found with this name !", "red")
-    if (appsJson[app.appName].themeApplied == theme.themeName) 
-        return setAction("This theme has already been set for this app !", "red")
-    
-    // applica il tema all'app e scriverlo nel json
-})
-
-$("#save").on('click', function() { 
+$("#save").on('click', async function() { 
+    let themeName = $("#theme-name").val()
     if ($("#colors").find("input").filter(function() { return $(this).val() != ''; }).length == 9) {
-        let override = false
-        if ($("#theme-name").val() == '') 
-            return setAction("The theme name is missing !", "red")
-        else if (Object.keys(themes).includes($("#theme-name").val())) {
-            override = remote.dialog.showMessageBoxSync(remote.getCurrentWindow(), {
+        if (themeName == '') return setAction("The theme name is missing !", "red")
+        else if (Object.keys(themes).includes(themeName)) {
+            let override = remote.dialog.showMessageBoxSync(remote.getCurrentWindow(), {
                 title: "Override theme",
-                message: `Do you want to override the existing ${$("#theme-name").val()} ?`,
+                message: `Do you want to override the existing ${themeName} ?`,
                 detail: "If you click yes, the app will replace the current theme color values with the new one you chose.",
                 type: "question",
                 buttons: ["Yes", "No"],
                 defaultId: 1,
                 cancelId: 1,
             }) == 0
+            if (!override) return setAction("The theme has not been replaced !", "gold")
         }
-        if (!override) return
-        $("#colors").find("input").filter(function() { return console.log($(this).val()); })
-        // salvare tema nel json
+        let colors = $("#colors").find("input").map((i, e) => $(e).val()).get()
+        await ipcRenderer.invoke("setStoreValue", `themes.${themeName}`, JSON.parse(`{
+            "primary": "${colors[0]}",
+            "secondary": "${colors[1]}",
+            "tertiary": "${colors[2]}",
+            "dark": "${colors[3]}",
+            "light": "${colors[4]}",
+            "info": "${colors[5]}",
+            "positive": "${colors[6]}",
+            "danger": "${colors[7]}",
+            "warning": "${colors[8]}"
+        }`))
         setAction("Theme saved successfully !", "lime")
     } else setAction("The theme could not be saved because some colors are missing !", "red")
 })

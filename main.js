@@ -10,9 +10,7 @@ const store = new Store({clearInvalidConfig: true, watch: true})
 global.apps = []
 global.themes = []
 
-try {
-    require('electron-reloader')(module)
-} catch (err) { console.error(err) }
+try { require('electron-reloader')(module) } catch (err) { console.error(err) }
 
 const createWindow = () => {
     const win = new BrowserWindow({
@@ -24,7 +22,7 @@ const createWindow = () => {
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
-            devTools: true, // change to false in production
+            devTools: true, // TODO : change to false in production
             spellcheck: false,
             preload: path.join(__dirname, 'preload.js')
         }
@@ -57,13 +55,14 @@ app.whenReady().then(async () => {
     if (!store.has("themes")) {
         global.themes = {
             "Dark-Cyan": {
+                "primary": "#00CCAA",
+                "secondary": "",
+                "tertiary": "",
                 "dark": "#252525",
                 "light": "#FFFFFF",
-                "primary": "#00CCAA",
-                "secondary": null,
-                "tertiary": null,
-                "danger": "#FF0000",
+                "info": "",
                 "positive": "#00FF15",
+                "danger": "#FF0000",
                 "warning": "#FFD500"
             }
         }
@@ -90,4 +89,13 @@ ipcMain.handle('setStoreValue', (event, key, value) => {
 
 ipcMain.handle('delStoreValue', (event, key) => {
     store.delete(key)
+})
+
+ipcMain.handle('setAppTheme', (event, app, theme) => {
+    let appValues = store.get(`apps.${app}`)
+    let themeValues = store.get(`themes.${theme}`)
+    // TODO : applica il tema all'app e POI scriverlo nel json
+    // return true se è andato tutto ok, altrimenti false
+    // store.set(`apps.${app}.themeApplied`, theme)
+    return true
 })

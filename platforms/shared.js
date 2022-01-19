@@ -17,14 +17,6 @@ const readFolderSafe = async (p) => {
     }
 }
 
-const readFileAsBufferSafe = async (p) => {
-    try {
-        return await fs.promises.readFile(p)
-    } catch (err) {
-        return ''
-    }
-}
-
 const readPlistFile = async (path) => {
     return new Promise((resolve, reject) => {
         readPlist(path, (error, data) => {
@@ -40,7 +32,6 @@ const readPlistFile = async (path) => {
 exports.readFileSafe = readFileSafe
 exports.readPlistFile = readPlistFile
 exports.readFolderSafe = readFolderSafe
-exports.readFileAsBufferSafe = readFileAsBufferSafe
 
 /*var filesFound = [], folderFound = []
 

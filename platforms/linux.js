@@ -14,23 +14,17 @@ async function readAppInfo(desktopFile) {
     else exePath = entry.Exec.split(/\s+/)[0]
     if (!exePath.startsWith('/')) return
     if (!fs.existsSync(path.join(exePath, '../resources/electron.asar'))) return
-    let icon = ''
-    if (entry.Icon) {
-        try {
-            const iconBuffer = await fs.promises.readFile(`/usr/share/icons/hicolor/1024x1024/apps/${entry.Icon}.png`)
-            icon = 'data:image/png;base64,' + iconBuffer.toString('base64')
-        } catch (err) { console.error(err) }
-    }
     let appName = entry ? entry.Name : path.basename(exePath)
     appName = appName.replace(/\d+(\.\d+){0,5}/, "")
     appName = appName.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
     return {
-        name: appName.trimEnd(),
-        version: "",
-        themeApplied: "",
-        mainPath: path.dirname(exePath),
-        exePath,
-        asarPath: ""
+        [appName.trimEnd()]: {
+            version: "",
+            themeApplied: "",
+            mainPath: path.dirname(exePath),
+            exePath,
+            asarPath: ""
+        }
     }
 }
 
@@ -43,7 +37,7 @@ const detectApps = async () => {
         })
     )
     apps = apps.filter(app => typeof app !== 'undefined').sort((a, b) => (a.name < b.name ? -1 : 1))
-    return apps
+    return Object.assign({}, ...apps)
 }
 
 exports.detectApps = detectApps
