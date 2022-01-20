@@ -75,6 +75,8 @@ typings/
 # FuseBox cache
 .fusebox/
 
+dist/
 .vscode/
 *.xd
+*.ai
 *.code-workspace

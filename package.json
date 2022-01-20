@@ -1,24 +1,38 @@
 {
   "name": "themetron",
   "version": "1.0.0",
-  "description": "Tool to customize the themes for any electron-based app",
+  "description": "Tool to customize the theme of any electron-based app",
   "main": "main.js",
   "scripts": {
     "start": "electron --trace-warnings .",
     "publish": "electron-builder -p always"
   },
   "build": {
-    "publish": [
-      {
-        "provider": "github",
-        "owner": "zAlweNy26",
-        "repo": "Themetron"
-      }
-    ],
     "appId": "it.alwe.themetron",
+    "productName": "Themetron",
+    "copyright": "Copyright © 2022 zAlweNy26",
     "mac": {
-      "category": "alwe.themetron.app"
-    }
+      "icon": "./icon.icns",
+      "category": "public.app-category.utilities"
+    },
+    "win": {
+      "target": "portable",
+      "icon": "./icon.ico"
+    },
+    "portable": {
+      "unicode": false,
+      "artifactName": "Themetron.exe"
+    },
+    "linux": {
+      "icon": "./icon.png",
+      "category": "Utility"
+    },
+    "files": [
+      "./app/*",
+      "./app/**/*",
+      "./node_modules/**/*",
+      "*.js"
+    ]
   },
   "author": "zAlweNy26",
   "license": "ISC",
