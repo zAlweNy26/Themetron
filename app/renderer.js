@@ -42,7 +42,7 @@ $(".menu-list").on('click', 'li .item-remove', async function() {
     let menuID = $(parent).parent().parent().attr("id")
     let sel = menuID == "apps" ? "Select an app" : "Select a theme"
     let input = $(`#${menuID} .menu-selected`)
-    await ipcRenderer.invoke("delStoreValue", `${menuID}.${input.val()}`)
+    await ipcRenderer.invoke("delStoreValue", `${menuID}.${input.val().replace(".", "\\.")}`)
     if (parent.children("span").text() == input.val()) input.val(sel)
     setAction(`${menuID == "apps" ? "App" : "Theme"} removed from the list !`, "red")
     parent.remove()
@@ -50,7 +50,7 @@ $(".menu-list").on('click', 'li .item-remove', async function() {
 
 $("#root").click(function() {
     $(".dropmenu").removeClass("active")
-});
+})
 
 $(".gh-wrapper").on('click', function() {
     remote.shell.openExternal("https://github.com/zAlweNy26/electron-theme-tool")
@@ -91,10 +91,11 @@ $(".menu-add").on('click', function() {
     })
     if (selectedAsar != undefined) {
         selectedAsar.forEach(async exePath => {
-            let baseName = path.basename(exePath).split(".")[0]
+            let baseName = path.basename(exePath)
+            baseName = baseName.substring(0, baseName.lastIndexOf(".")).replace(".", "\\.")
             let alreadyExist = $('#apps .menu-list').find(`li span:contains("${baseName}")`)
             if (alreadyExist.length == 0) {
-                await ipcRenderer.invoke("setStoreValue", `apps.${baseName}`, {
+                await ipcRenderer.invoke("setStoreValue", `apps.${basename}`, {
                     "version": "",
                     "themeApplied": "",
                     "mainPath": path.dirname(exePath),
@@ -130,7 +131,7 @@ $("#save").on('click', async function() {
             if (!override) return setAction("The theme has not been replaced !", "gold")
         }
         let colors = $("#colors").find("input").map((i, e) => $(e).val()).get()
-        await ipcRenderer.invoke("setStoreValue", `themes.${themeName}`, JSON.parse(`{
+        await ipcRenderer.invoke("setStoreValue", `themes.${themeName.replace(".", "\\.")}`, JSON.parse(`{
             "primary": "${colors[0]}",
             "secondary": "${colors[1]}",
             "tertiary": "${colors[2]}",
@@ -145,15 +146,23 @@ $("#save").on('click', async function() {
     } else setAction("The theme could not be saved because some colors are missing !", "red")
 })
 
-$("#apply").on('click', async function() {
+$("#apply").on('click', function() {
     let themeName = $("#themes .menu-selected").val()
     let appName = $("#apps .menu-selected").val()
     if (themeName == '' && appName == '') return setAction("Neither the app nor the theme have been selected !", "red")
     else if (themeName == '') return setAction("No theme to set has been selected !", "red")
     else if (appName == '') return setAction("No app has been selected !", "red")
-    else if (apps[appName] == undefined) return setAction("No apps found with this name !", "red")
-    else if (apps[appName].themeApplied == themeName) return setAction("This theme has already been set for this app !", "red")
-    let res = await ipcRenderer.invoke("setAppTheme", appName, themeName)
-    if (res == "success") setAction("Theme injected successfully !", "lime")
-    else setAction(res/*"There were problems assigning the theme to the app !"*/, "red")
+    if (apps[`${appName}`] == undefined) return setAction("No apps found with this name !", "red")
+    else if (apps[`${appName}`].themeApplied == themeName) return setAction("This theme has already been set for this app !", "red")
+    setAction("Theme injection loading", "gold")
+    let dots = [".", "..", "..."], dot = 0
+    let injecting = setInterval(() => {
+        dot = dot > 2 ? 0 : dot
+        setAction(`Theme injection loading${dots[dot++]}`, "gold")
+    }, 500)
+    ipcRenderer.invoke("setAppTheme", appName, themeName).then(res => {
+        clearInterval(injecting)
+        if (res == "success") setAction("Theme injected successfully !", "lime")
+        else setAction(res/*"There were problems assigning the theme to the app !"*/, "red")
+    })
 })

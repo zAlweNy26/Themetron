@@ -40,7 +40,7 @@ app.whenReady().then(async () => {
         global.apps = apps
         store.set("apps", apps)
     } else {
-        store.set("apps", Object.assign({}, store.get("apps"), apps))
+        store.set("apps", Object.assign({}, apps, store.get("apps")))
         global.apps = store.get("apps")
     }
     if (!store.has("themes")) {
@@ -82,10 +82,10 @@ ipcMain.handle('delStoreValue', (event, key) => {
     store.delete(key)
 })
 
-ipcMain.handle('setAppTheme', (event, app, theme) => {
-    let appValues = store.get(`apps.${app}`)
-    let themeValues = store.get(`themes.${theme}`)
-    let res = require("./inject.js").inject(app, appValues, theme, themeValues)
-    if (res == "success") store.set(`apps.${app}.themeApplied`, theme)
+ipcMain.handle('setAppTheme', async (event, app, theme) => {
+    let appValues = store.get(`apps.${app.replace(".", "\\.")}`)
+    let themeValues = store.get(`themes.${theme.replace(".", "\\.")}`)
+    let res = await require("./inject.js").inject(app, appValues, theme, themeValues)
+    if (res == "success") store.set(`apps.${app.replace(".", "\\.")}.themeApplied`, theme)
     return res
 })
