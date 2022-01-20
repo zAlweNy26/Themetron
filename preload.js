@@ -1,22 +1,16 @@
-//const { contextBridge, ipcRenderer } = require("electron")
-//const DataStore = require('./storage.js')
+/*const { ipcRenderer } = require("electron")
 
-//const appsData = new DataStore({ name: "Apps" })
-
-/*var detectedApps
-
-try {
-    detectedApps = require(`./platforms/${process.platform}.js`).detectApps()
-} catch (err) {
-    console.log("Platform not supported !")
-}
-
-contextBridge.exposeInMainWorld("api", {
-    close: () => {
-        ipcRenderer.invoke("closeApp")
+window.api = {
+    getValue: key => {
+        ipcRenderer.invoke("getStoreValue", key)
     },
-    getApps: () => {
-        // fare controllo con il datastore
-        return detectedApps
+    setValue: (key, value) => {
+        ipcRenderer.invoke("setStoreValue", key, value)
+    },
+    deleteValue: key => {
+        ipcRenderer.invoke("delStoreValue", key)
+    },
+    setApptheme: (app, theme) => {
+        ipcRenderer.invoke("setAppTheme", app, theme)
     }
-})*/
+}*/

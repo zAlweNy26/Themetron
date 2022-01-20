@@ -1,7 +1,6 @@
 const { ipcRenderer } = require('electron')
 const remote = require("@electron/remote")
 const path = require("path")
-const klawSync = remote.require("klaw-sync")
 
 var apps = remote.getGlobal("apps")
 var themes = remote.getGlobal("themes")
@@ -28,14 +27,6 @@ $(document).ready(function() {
             </li>`
         )
     })
-    /*window.api.getApps().then(apps => {
-        apps.forEach(app => {
-            $('#apps').append($('<option>', {
-                value: app.id,
-                text: app.name
-            }))
-        })
-    })*/
 })
 
 $(".menu-list").on('click', 'li', function(e) {
@@ -71,7 +62,6 @@ $(".pp-wrapper").on('click', function() {
 
 $(".close-wrapper").on('click', function() {
     remote.getCurrentWindow().close()
-    //window.api.close()
 })
 
 $(".min-wrapper").on('click', function() {
@@ -123,19 +113,6 @@ $(".menu-add").on('click', function() {
     }
 })
 
-$("#apply").on('click', async function() {
-    let themeName = $("#themes .menu-selected").val()
-    let appName = $("#apps .menu-selected").val()
-    if (themeName == '' && appName == '') return setAction("Neither the app nor the theme have been selected !", "red")
-    else if (themeName == '') return setAction("No theme to set has been selected !", "red")
-    else if (appName == '') return setAction("No app has been selected !", "red")
-    else if (apps[appName] == undefined) return setAction("No apps found with this name !", "red")
-    else if (apps[appName].themeApplied == themeName) return setAction("This theme has already been set for this app !", "red")
-    let res = await ipcRenderer.invoke("setAppTheme", appName, themeName)
-    if (res) setAction("Theme injected successfully !", "lime")
-    else setAction("There were problems assigning the theme to the app !", "red")
-})
-
 $("#save").on('click', async function() { 
     let themeName = $("#theme-name").val()
     if ($("#colors").find("input").filter(function() { return $(this).val() != ''; }).length == 9) {
@@ -166,4 +143,17 @@ $("#save").on('click', async function() {
         }`))
         setAction("Theme saved successfully !", "lime")
     } else setAction("The theme could not be saved because some colors are missing !", "red")
+})
+
+$("#apply").on('click', async function() {
+    let themeName = $("#themes .menu-selected").val()
+    let appName = $("#apps .menu-selected").val()
+    if (themeName == '' && appName == '') return setAction("Neither the app nor the theme have been selected !", "red")
+    else if (themeName == '') return setAction("No theme to set has been selected !", "red")
+    else if (appName == '') return setAction("No app has been selected !", "red")
+    else if (apps[appName] == undefined) return setAction("No apps found with this name !", "red")
+    else if (apps[appName].themeApplied == themeName) return setAction("This theme has already been set for this app !", "red")
+    let res = await ipcRenderer.invoke("setAppTheme", appName, themeName)
+    if (res == "success") setAction("Theme injected successfully !", "lime")
+    else setAction(res/*"There were problems assigning the theme to the app !"*/, "red")
 })

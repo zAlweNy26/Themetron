@@ -10,7 +10,7 @@ const store = new Store({clearInvalidConfig: true, watch: true})
 global.apps = []
 global.themes = []
 
-try { require('electron-reloader')(module) } catch (err) { console.error(err) } // TODO : remove it in production
+//try { require('electron-reloader')(module) } catch (err) { console.error(err) } // TODO : remove it in production
 
 const createWindow = () => {
     const win = new BrowserWindow({
@@ -85,10 +85,7 @@ ipcMain.handle('delStoreValue', (event, key) => {
 ipcMain.handle('setAppTheme', (event, app, theme) => {
     let appValues = store.get(`apps.${app}`)
     let themeValues = store.get(`themes.${theme}`)
-    console.log(appValues)
-    console.log(themeValues)
-    // TODO : applica il tema all'app e POI scriverlo nel json
-    // return true se è andato tutto ok, altrimenti false
-    // store.set(`apps.${app}.themeApplied`, theme)
-    return true
+    let res = require("./inject.js").inject(app, appValues, theme, themeValues)
+    if (res == "success") store.set(`apps.${app}.themeApplied`, theme)
+    return res
 })
