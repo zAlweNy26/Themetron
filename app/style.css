@@ -406,6 +406,10 @@ html, body {
     gap: 10px;
 }
 
+#theme-name {
+    flex: 1;
+}
+
 #bottom {
     display: flex;
     flex-direction: column;
@@ -419,7 +423,7 @@ html, body {
     font-weight: 800;
 }
 
-#save {
+#save, #open {
     outline: none;
     border: none;
     font-size: 1em;
@@ -432,11 +436,26 @@ html, body {
     border-radius: var(--radius);
     transition: all .25s ease;
     cursor: pointer;
+    color: var(--bg);
 }
 
-#save:hover {
+#save:hover, #open:hover {
     color: white;
     box-shadow: 0 0 1px var(--main), 0 0 3px var(--main), 0 0 5px var(--main), 0 0 10px var(--main);
+}
+
+#open {
+    padding: 0 5px;
+}
+
+#open svg {
+    width: 20px;
+    height: 25px;
+    transition: all .25s ease;
+}
+
+#open:hover svg {
+    fill: white;
 }
 
 #theme-info p {

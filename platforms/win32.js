@@ -1,6 +1,6 @@
 const fs = require("fs")
 const path = require("path")
-const { readFolderSafe } = require("./shared.js")
+const { readFolderSafe, findFiles } = require("./shared.js")
 const { HKEY, enumerateValues, enumerateKeys, RegistryValueType } = require("registry-js")
 
 function enumRegeditItems(key, subkey) {
@@ -84,4 +84,11 @@ const detectApps = async () => {
     return Object.assign({}, ...apps)
 }
 
+const startInjection = (appName, appValues, themeName, themeValues) => {
+    let asarFiles = findFiles(appValues.mainPath, "asar")
+    console.log(asarFiles)
+    return "success"
+}
+
 exports.detectApps = detectApps
+exports.startInjection = startInjection

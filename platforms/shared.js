@@ -1,4 +1,6 @@
 const fs = require("fs")
+const path = require('path')
+const klawSync = require("klaw-sync")
 const { readFile: readPlist } = require("simple-plist")
 
 const readFileSafe = async (p) => {
@@ -29,6 +31,15 @@ const readPlistFile = async (path) => {
     })
 }
 
+const findFiles = (mainPath, ext) => {
+    return klawSync(mainPath, {
+        nodir: true,
+        filter: item => path.extname(item.path) == `.${ext}`,
+        traverseAll: true
+    })
+}
+
+exports.findFiles = findFiles
 exports.readFileSafe = readFileSafe
 exports.readPlistFile = readPlistFile
 exports.readFolderSafe = readFolderSafe

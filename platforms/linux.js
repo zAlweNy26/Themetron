@@ -40,4 +40,9 @@ const detectApps = async () => {
     return Object.assign({}, ...apps)
 }
 
+const startInjection = () => {
+    return "success"
+}
+
 exports.detectApps = detectApps
+exports.startInjection = startInjection

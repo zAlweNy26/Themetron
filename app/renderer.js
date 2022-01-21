@@ -41,8 +41,9 @@ $(".menu-list").on('click', 'li .item-remove', async function() {
     let parent = $(this).parent()
     let menuID = $(parent).parent().parent().attr("id")
     let sel = menuID == "apps" ? "Select an app" : "Select a theme"
+    let themeName = parent.children("span").text()
     let input = $(`#${menuID} .menu-selected`)
-    await ipcRenderer.invoke("delStoreValue", `${menuID}.${input.val().replace(".", "\\.")}`)
+    await ipcRenderer.invoke("delStoreValue", `${menuID}.${themeName.replace(".", "\\.")}`)
     if (parent.children("span").text() == input.val()) input.val(sel)
     setAction(`${menuID == "apps" ? "App" : "Theme"} removed from the list !`, "red")
     parent.remove()
@@ -66,6 +67,10 @@ $(".close-wrapper").on('click', function() {
 
 $(".min-wrapper").on('click', function() {
     remote.getCurrentWindow().minimize()
+})
+
+$("#open").on('click', async function() {
+    await ipcRenderer.invoke("openInEditor")
 })
 
 $(".dropmenu").on('click', function(e) {
@@ -131,6 +136,12 @@ $("#save").on('click', async function() {
             if (!override) return setAction("The theme has not been replaced !", "gold")
         }
         let colors = $("#colors").find("input").map((i, e) => $(e).val()).get()
+        $("#themes .menu-list").append(`
+            <li>
+                <i class="item-remove"></i>
+                <span>${themeName}</span>
+            </li>`
+        )
         await ipcRenderer.invoke("setStoreValue", `themes.${themeName.replace(".", "\\.")}`, JSON.parse(`{
             "primary": "${colors[0]}",
             "secondary": "${colors[1]}",

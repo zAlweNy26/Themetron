@@ -10,7 +10,7 @@ const store = new Store({clearInvalidConfig: true, watch: true})
 global.apps = []
 global.themes = []
 
-//try { require('electron-reloader')(module) } catch (err) { console.error(err) } // TODO : remove it in production
+try { require('electron-reloader')(module) } catch (err) { console.error(err) } // TODO : remove it in production
 
 const createWindow = () => {
     const win = new BrowserWindow({
@@ -68,6 +68,10 @@ app.whenReady().then(async () => {
 
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') app.quit()
+})
+
+ipcMain.handle('openInEditor', (event) => {
+    store.openInEditor()
 })
 
 ipcMain.handle('getStoreValue', (event, key) => {
