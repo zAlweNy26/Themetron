@@ -1,5 +1,6 @@
 const fs = require("fs")
 const path = require("path")
+const wvi = require('win-version-info')
 const { readFolderSafe, findFiles } = require("./shared.js")
 const { HKEY, enumerateValues, enumerateKeys, RegistryValueType } = require("registry-js")
 
@@ -21,7 +22,7 @@ async function getAppInfoFromRegeditItemValues(values) {
         const icon = displayIcon.data.split(',')[0]
         if (icon.toLowerCase().endsWith('.exe')) {
             if (!isElectronApp(path.dirname(icon))) return
-            return getAppInfoByExePath(icon, iconPath, values)
+            return getAppInfoByExePath(icon, values)
         } else if (icon.toLowerCase().endsWith('.ico')) iconPath = icon
     }
     let installDir = ''
@@ -30,14 +31,14 @@ async function getAppInfoFromRegeditItemValues(values) {
     else if (iconPath) installDir = path.dirname(iconPath)
     if (!installDir) return
     const exeFile = await findExeFile(installDir)
-    if (exeFile) return getAppInfoByExePath(exeFile, iconPath, values)
+    if (exeFile) return getAppInfoByExePath(exeFile, values)
     else {
         const files = await readFolderSafe(installDir)
         const semverDir = files.find(file => /\d+(\.\d+){0,5}/.test(file))
         if (!semverDir) return
         const exeFile = await findExeFile(path.join(installDir, semverDir))
         if (!exeFile) return
-        return getAppInfoByExePath(exeFile, iconPath, values)
+        return getAppInfoByExePath(exeFile, values)
     }
 }
 
@@ -49,20 +50,21 @@ function isElectronApp(installDir) {
     )
 }
 
-async function getAppInfoByExePath(exePath, iconPath, values) { // TODO : rimuovere iconPath da ovunque
+async function getAppInfoByExePath(exePath, values) {
     const displayName = values.find(v => v && v.type === RegistryValueType.REG_SZ && v.name === 'DisplayName')
     const displayVersion = values.find(v => v && v.type === RegistryValueType.REG_SZ && v.name === 'DisplayVersion')
     let appName = displayName ? displayName.data : path.basename(exePath, '.exe')
-    let appVer = displayVersion ? displayVersion.data : ""
     appName = appName.replace(/\d+(\.\d+){0,5}/, "")
     appName = appName.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+    let mainPath = path.dirname(exePath)
+    let asarPaths = findFiles(mainPath, "asar", false).filter(i => path.basename(path.dirname(i)) == "resources")
     return {
         [appName.trimEnd()]: {
-            version: appVer,
+            version: displayVersion ? displayVersion.data : "",
             themeApplied: "",
-            mainPath: path.dirname(exePath),
+            mainPath,
             exePath,
-            asarPath: ""
+            asarPaths
         }
     }
 }
@@ -84,11 +86,25 @@ const detectApps = async () => {
     return Object.assign({}, ...apps)
 }
 
+const readAppByPath = async p => {
+    let info = wvi(p)
+    let asarPaths = findFiles(path.dirname(p), "asar", false).filter(i => path.basename(path.dirname(i)) == "resources")
+    return {
+        [info.ProductName.trimEnd()]: {
+            version: info.ProductVersion,
+            themeApplied: "",
+            mainPath: path.dirname(p),
+            exePath: p,
+            asarPaths
+        }
+    }
+}
+
 const startInjection = (appName, appValues, themeName, themeValues) => {
-    let asarFiles = findFiles(appValues.mainPath, "asar")
-    console.log(asarFiles)
+    
     return "success"
 }
 
 exports.detectApps = detectApps
+exports.readAppByPath = readAppByPath
 exports.startInjection = startInjection

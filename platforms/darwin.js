@@ -1,18 +1,21 @@
 const fs = require("fs")
 const path = require("path")
-const { readFolderSafe, readPlistFile } = require("./shared.js")
+const { readFolderSafe, readPlistFile, findFiles } = require("./shared.js")
 
-async function readAppByPath(p) {
+const readAppByPath = async p => {
     const isElectronBased = fs.existsSync(path.join(p, 'Contents/Frameworks/Electron Framework.framework'))
     if (!isElectronBased) return
     const info = await readPlistFile(path.join(p, 'Contents/Info.plist'))
+    let exePath = path.resolve(p, 'Contents/MacOS', info.CFBundleExecutable)
+    let mainPath = path.dirname(exePath)
+    let asarPaths = findFiles(mainPath, "asar", false)
     return {
         [info.CFBundleName]: {
             version: info.CFBundleVersion,
             themeApplied: "",
-            mainPath: path.dirname(exePath),
-            exePath: path.resolve(p, 'Contents/MacOS', info.CFBundleExecutable),
-            asarPath: ""
+            mainPath,
+            exePath,
+            asarPaths
         }
     }
 }
@@ -30,4 +33,5 @@ const startInjection = () => {
 }
 
 exports.detectApps = detectApps
+exports.readAppByPath = readAppByPath
 exports.startInjection = startInjection

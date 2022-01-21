@@ -88,29 +88,43 @@ $(".dropmenu").on('click', function(e) {
 })
 
 $(".menu-add").on('click', function() {
+    let extFilter
+    if (process.platform == "win32") extFilter = { name: 'Windows executable', extensions: ['exe'] }
+    else if (process.platform == "darwin") extFilter = { name: 'Linux executable', extensions: ['desktop'] }
+    else if (process.platform == "linux") extFilter = { name: 'MacOS executable', extensions: ['app'] }
     let selectedAsar = remote.dialog.showOpenDialogSync(remote.getCurrentWindow(), {
         title: "Select the .exe file of the electron-based app",
         buttonLabel: "Select",
         properties: ['openFile'],
-        filters: [{ name: 'Electron executable', extensions: ['exe'] }]
+        filters: [extFilter]
     })
     if (selectedAsar != undefined) {
         selectedAsar.forEach(async exePath => {
-            let baseName = path.basename(exePath)
-            baseName = baseName.substring(0, baseName.lastIndexOf(".")).replace(".", "\\.")
-            let alreadyExist = $('#apps .menu-list').find(`li span:contains("${baseName}")`)
+            let appInfos = await ipcRenderer.invoke("getAppInfo", exePath)
+            let appName = Object.keys(appInfos)[0]
+            if (appInfos[appName].asarPaths.length == 0) {
+                return remote.dialog.showMessageBoxSync(remote.getCurrentWindow(), {
+                    title: "No asar package found !",
+                    message: `Are you sure that this is an electron-based app ? Because I don't think so.`,
+                    type: "error",
+                    buttons: ["Ok, sorry"],
+                    defaultId: 0,
+                    cancelId: 0,
+                })
+            }
+            let alreadyExist = $('#apps .menu-list').find(`li span:contains("${appName}")`)
             if (alreadyExist.length == 0) {
-                await ipcRenderer.invoke("setStoreValue", `apps.${basename}`, {
-                    "version": "",
+                await ipcRenderer.invoke("setStoreValue", `apps.${appName.replace(".", "\\.")}`, {
+                    "version": appInfos[appName].version,
                     "themeApplied": "",
-                    "mainPath": path.dirname(exePath),
-                    "exePath": exePath,
-                    "asarPath": ""
+                    "mainPath": appInfos[appName].mainPath,
+                    "exePath": appInfos[appName].exePath,
+                    "asarPaths": appInfos[appName].asarPaths
                 })
                 $("#apps .menu-list").append(`
                     <li>
                         <i class="item-remove"></i>
-                        <span>${baseName}</span>
+                        <span>${appName}</span>
                     </li>`
                 )
                 setAction("App added to the list !", "lime")

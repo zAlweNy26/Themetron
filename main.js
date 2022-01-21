@@ -10,7 +10,7 @@ const store = new Store({clearInvalidConfig: true, watch: true})
 global.apps = []
 global.themes = []
 
-try { require('electron-reloader')(module) } catch (err) { console.error(err) } // TODO : remove it in production
+//try { require('electron-reloader')(module) } catch (err) { console.error(err) } // TODO : remove it in production
 
 const createWindow = () => {
     const win = new BrowserWindow({
@@ -92,4 +92,9 @@ ipcMain.handle('setAppTheme', async (event, app, theme) => {
     let res = await require("./inject.js").inject(app, appValues, theme, themeValues)
     if (res == "success") store.set(`apps.${app.replace(".", "\\.")}.themeApplied`, theme)
     return res
+})
+
+ipcMain.handle('getAppInfo', async (event, exePath) => {
+    let appInfo = await require(`./platforms/${process.platform}.js`).readAppByPath(exePath)
+    return appInfo
 })

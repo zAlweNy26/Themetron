@@ -31,12 +31,13 @@ const readPlistFile = async (path) => {
     })
 }
 
-const findFiles = (mainPath, ext) => {
+const findFiles = (mainPath, ext, noDir = false) => {
     return klawSync(mainPath, {
-        nodir: true,
-        filter: item => path.extname(item.path) == `.${ext}`,
+        nodir: noDir,
+        nofile: !noDir,
+        filter: item => item.path.endsWith(`.${ext}`),
         traverseAll: true
-    })
+    }).map(v => v.path)
 }
 
 exports.findFiles = findFiles

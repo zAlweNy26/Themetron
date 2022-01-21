@@ -1,11 +1,11 @@
 const fs = require("fs")
 const ini = require("ini")
 const path = require("path")
-const { readFolderSafe, readFileSafe } = require("./shared.js")
+const { readFolderSafe, readFileSafe, findFiles } = require("./shared.js")
 
 const desktopFilesDir = '/usr/share/applications'
 
-async function readAppInfo(desktopFile) {
+const readAppByPath = async desktopFile => {
     const content = await readFileSafe(desktopFile)
     const entry = ini.parse(content)['Desktop Entry']
     if (!entry || !entry.Exec) return
@@ -17,13 +17,15 @@ async function readAppInfo(desktopFile) {
     let appName = entry ? entry.Name : path.basename(exePath)
     appName = appName.replace(/\d+(\.\d+){0,5}/, "")
     appName = appName.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+    let mainPath = path.dirname(exePath)
+    let asarPaths = findFiles(mainPath, "asar", false)
     return {
         [appName.trimEnd()]: {
             version: "",
             themeApplied: "",
-            mainPath: path.dirname(exePath),
+            mainPath,
             exePath,
-            asarPath: ""
+            asarPaths
         }
     }
 }
@@ -33,7 +35,7 @@ const detectApps = async () => {
     let apps = await Promise.all(
         files.map((file) => {
             if (!file.endsWith('.desktop')) return
-            return readAppInfo(path.join(desktopFilesDir, file))
+            return readAppByPath(path.join(desktopFilesDir, file))
         })
     )
     apps = apps.filter(app => typeof app !== 'undefined').sort((a, b) => (a.name < b.name ? -1 : 1))
@@ -45,4 +47,5 @@ const startInjection = () => {
 }
 
 exports.detectApps = detectApps
+exports.readAppByPath = readAppByPath
 exports.startInjection = startInjection
