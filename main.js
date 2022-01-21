@@ -1,5 +1,6 @@
 const { app, BrowserWindow, ipcMain } = require('electron')
 const Store = require('electron-store')
+const ps = require("ps-node")
 //const { autoUpdater } = require('electron-updater') // TODO : set it up before production
 const path = require('path')
 
@@ -86,15 +87,28 @@ ipcMain.handle('delStoreValue', (event, key) => {
     store.delete(key)
 })
 
-ipcMain.handle('setAppTheme', async (event, app, theme) => {
-    let appValues = store.get(`apps.${app.replace(".", "\\.")}`)
-    let themeValues = store.get(`themes.${theme.replace(".", "\\.")}`)
-    let res = await require("./inject.js").inject(app, appValues, theme, themeValues)
-    if (res == "success") store.set(`apps.${app.replace(".", "\\.")}.themeApplied`, theme)
-    return res
-})
-
 ipcMain.handle('getAppInfo', async (event, exePath) => {
     let appInfo = await require(`./platforms/${process.platform}.js`).readAppByPath(exePath)
     return appInfo
+})
+
+ipcMain.handle('setAppTheme', async (event, app, theme) => {
+    let appValues = store.get(`apps.${app.replace(".", "\\.")}`)
+    let themeValues = store.get(`themes.${theme.replace(".", "\\.")}`)
+    let res = await new Promise((resolve, reject) => {
+        try {
+            ps.lookup({ command: `${app}.exe`, psargs: 'ux' }, (err, resultList) => {
+                if (err) throw "Unable to find this process."
+                let pf = require(`./platforms/${process.platform}.js`)
+                if (resultList.length) {
+                    ps.kill(resultList[0].pid, { signal: 'SIGTERM' }, err => {
+                        if (err) throw "Unable to kill this process. Please close it manually."
+                        resolve(pf.startInjection(app, appValues, theme, themeValues))
+                    })
+                } else resolve(pf.startInjection(app, appValues, theme, themeValues))
+            })
+        } catch (error) { reject(error) }
+    })
+    if (res == "success") store.set(`apps.${app.replace(".", "\\.")}.themeApplied`, theme)
+    return res
 })

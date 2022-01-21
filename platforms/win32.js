@@ -1,5 +1,6 @@
-const fs = require("fs")
+const fs = require("fs-extra")
 const path = require("path")
+const asar = require("asar")
 const wvi = require('win-version-info')
 const { readFolderSafe, findFiles } = require("./shared.js")
 const { HKEY, enumerateValues, enumerateKeys, RegistryValueType } = require("registry-js")
@@ -101,8 +102,18 @@ const readAppByPath = async p => {
 }
 
 const startInjection = (appName, appValues, themeName, themeValues) => {
-    
-    return "success"
+    let res = "success"
+    appValues.asarPaths.forEach(ap => {
+        try {
+            if (!fs.existsSync(ap)) throw "The asar file path does not exist !"
+            //asar.extractAll(ap, path.join(path.dirname(ap), `${path.basename(ap).split(".")[0]}_unpacked`))
+            //fs.renameSync(ap, `${ap}.tmp`)
+            //fs.copyFileSync(ap, `${ap}.backup`)
+            //fs.copySync(ap, `${ap}.backup`)
+            //fs.renameSync(`${ap}.tmp`, ap)
+        } catch (error) { res = error }
+    })
+    return res
 }
 
 exports.detectApps = detectApps

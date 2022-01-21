@@ -1,4 +1,4 @@
-const fs = require("fs")
+const fs = require("fs-extra")
 const path = require('path')
 const klawSync = require("klaw-sync")
 const { readFile: readPlist } = require("simple-plist")

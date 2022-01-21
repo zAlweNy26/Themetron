@@ -1,4 +1,4 @@
-const fs = require("fs")
+const fs = require("fs-extra")
 const ini = require("ini")
 const path = require("path")
 const { readFolderSafe, readFileSafe, findFiles } = require("./shared.js")
