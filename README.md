@@ -1,9 +1,11 @@
 # Themetron
 Tool to customize the theme of any electron-based app.
 Since the automatic detection is not perfect, it could happen that some values of the app are wrong. For such situation, you have the option to manually change the values in Themetron's config.json.
+**Remember to execute the program as administrator otherwise the injection will not be successful !**
 ## To-do list
 - Add electron-updater functionality
 - Add possibility to inject custom Discord RPC into any electron-based app
+- Add onDidChange listener for config.json (electron-store)
 ## Things you can do
 - Automatically detect electron-based apps
 - Manually pick an eventually not detected electron-based app

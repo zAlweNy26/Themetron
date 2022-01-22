@@ -8,7 +8,7 @@ const readAppByPath = async p => {
     const info = await readPlistFile(path.join(p, 'Contents/Info.plist'))
     let exePath = path.resolve(p, 'Contents/MacOS', info.CFBundleExecutable)
     let mainPath = path.dirname(exePath)
-    let asarPaths = findFiles(mainPath, "asar", false)
+    let asarPaths = findFiles(mainPath, "asar", true)
     return {
         [info.CFBundleName]: {
             version: info.CFBundleVersion,

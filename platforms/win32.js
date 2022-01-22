@@ -58,7 +58,7 @@ async function getAppInfoByExePath(exePath, values) {
     appName = appName.replace(/\d+(\.\d+){0,5}/, "")
     appName = appName.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
     let mainPath = path.dirname(exePath)
-    let asarPaths = findFiles(mainPath, "asar", false).filter(i => path.basename(path.dirname(i)) == "resources")
+    let asarPaths = findFiles(mainPath, "asar", true).filter(i => path.basename(path.dirname(i)) == "resources")
     return {
         [appName.trimEnd()]: {
             version: displayVersion ? displayVersion.data : "",
@@ -106,9 +106,8 @@ const startInjection = (appName, appValues, themeName, themeValues) => {
     appValues.asarPaths.forEach(ap => {
         try {
             if (!fs.existsSync(ap)) throw "The asar file path does not exist !"
+            //fs.renameSync(ap, `${ap}.backup`)
             //asar.extractAll(ap, path.join(path.dirname(ap), `${path.basename(ap).split(".")[0]}_unpacked`))
-            //fs.renameSync(ap, `${ap}.tmp`)
-            //fs.copyFileSync(ap, `${ap}.backup`)
             //fs.copySync(ap, `${ap}.backup`)
             //fs.renameSync(`${ap}.tmp`, ap)
         } catch (error) { res = error }

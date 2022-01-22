@@ -1,6 +1,6 @@
 const fs = require("fs-extra")
 const path = require('path')
-const klawSync = require("klaw-sync")
+const { fdir } = require("fdir")
 const { readFile: readPlist } = require("simple-plist")
 
 const readFileSafe = async (p) => {
@@ -32,33 +32,15 @@ const readPlistFile = async (path) => {
 }
 
 const findFiles = (mainPath, ext, noDir = false) => {
-    return klawSync(mainPath, {
-        nodir: noDir,
-        nofile: !noDir,
-        filter: item => item.path.endsWith(`.${ext}`),
-        traverseAll: true
-    }).map(v => v.path)
+    const crawler = new fdir().crawlWithOptions(mainPath, {
+        includeBasePath: true,
+        includeDirs: !noDir,
+        filters: [(path, isDirectory) => path.endsWith(`.${ext}`)]
+    }).sync()
+    return crawler
 }
 
 exports.findFiles = findFiles
 exports.readFileSafe = readFileSafe
 exports.readPlistFile = readPlistFile
 exports.readFolderSafe = readFolderSafe
-
-/*var filesFound = [], folderFound = []
-
-const searchFor = (startPath, filter) => {
-    if (!fs.existsSync(startPath)) return
-    let files = fs.readdirSync(startPath)
-    for (let i = 0; i < files.length; i++) {
-        let name = path.join(startPath, files[i])
-        let stat = fs.statSync(name)
-        filter.forEach(v => {
-            if (!v.startsWith(".") && path.basename(name) == v) folderFound.push(name)
-            else if (v.startsWith(".") && path.extname(name) == v) filesFound.push(name)
-            else if (stat.isDirectory()) searchFor(name, [v])
-        })
-    }
-}
-
-searchFor('C:\\Users\\danyn\\AppData\\Local\\Microsoft\\Teams', [".asar", "resources"])*/

@@ -18,7 +18,7 @@ const readAppByPath = async desktopFile => {
     appName = appName.replace(/\d+(\.\d+){0,5}/, "")
     appName = appName.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
     let mainPath = path.dirname(exePath)
-    let asarPaths = findFiles(mainPath, "asar", false)
+    let asarPaths = findFiles(mainPath, "asar", true)
     return {
         [appName.trimEnd()]: {
             version: "",
