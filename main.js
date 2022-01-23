@@ -14,16 +14,17 @@ global.themes = []
 //try { require('electron-reloader')(module) } catch (err) { console.error(err) } // TODO : remove it in production
 
 const createWindow = () => {
-    const win = new BrowserWindow({
+    var win = new BrowserWindow({
         width: 550,
         height: 320,
         resizable: false,
         frame: false,
         transparent: true,
+		icon: 'icon.png',
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
-            devTools: true, // TODO : change to false in production
+            devTools: false, // TODO : change to false in production
             spellcheck: false,
             preload: path.join(__dirname, 'preload.js')
         }
@@ -31,7 +32,7 @@ const createWindow = () => {
     require('@electron/remote/main').enable(win.webContents)
     win.loadFile('app/index.html')
     win.on('closed', () => {
-        mainWindow = null
+        win = null
     })
 }
 
