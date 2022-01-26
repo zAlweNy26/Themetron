@@ -98,7 +98,7 @@ ipcMain.handle('setAppTheme', async (event, app, theme) => {
     let themeValues = store.get(`themes.${theme.replace(".", "\\.")}`)
     let res = await new Promise((resolve, reject) => {
         try {
-            ps.lookup({ command: `${app}.exe`, psargs: 'ux' }, (err, resultList) => {
+            ps.lookup({ command: app, psargs: 'ux' }, (err, resultList) => {
                 if (err) throw "Unable to find this process."
                 let pfs = require(`./platforms/shared.js`)
                 if (resultList.length) {
