@@ -100,13 +100,13 @@ ipcMain.handle('setAppTheme', async (event, app, theme) => {
         try {
             ps.lookup({ command: `${app}.exe`, psargs: 'ux' }, (err, resultList) => {
                 if (err) throw "Unable to find this process."
-                let pf = require(`./platforms/${process.platform}.js`)
+                let pfs = require(`./platforms/shared.js`)
                 if (resultList.length) {
                     ps.kill(resultList[0].pid, { signal: 'SIGTERM' }, err => {
                         if (err) throw "Unable to kill this process. Please close it manually."
-                        resolve(pf.startInjection(app, appValues, theme, themeValues))
+                        resolve(pfs.startInjection(app, appValues, theme, themeValues))
                     })
-                } else resolve(pf.startInjection(app, appValues, theme, themeValues))
+                } else resolve(pfs.startInjection(app, appValues, theme, themeValues))
             })
         } catch (error) { reject(error) }
     })

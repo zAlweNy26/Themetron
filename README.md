@@ -6,6 +6,7 @@ Since the automatic detection is not perfect, it could happen that some values o
 - Add electron-updater functionality
 - Add possibility to inject custom Discord RPC into any electron-based app
 - Add onDidChange listener for config.json (electron-store)
+- Add possibility to reset the injection (using backup)
 ## Things you can do
 - Automatically detect electron-based apps
 - Manually pick an eventually not detected electron-based app
